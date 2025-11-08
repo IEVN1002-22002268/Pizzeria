@@ -19,7 +19,6 @@ def pizzeria():
     if ventas_cookie:
         ventas_totales_lista = json.loads(ventas_cookie)
 
-    # (Cookie de cliente que guardaremos al 'Agregar')
     cliente_cookie=request.cookies.get('cliente_temporal')
     if cliente_cookie:
         cliente_info=json.loads(cliente_cookie)
@@ -51,7 +50,6 @@ def pizzeria():
 
                     tamanio_texto=""
                     for valor, texto in pizza_form.tamanio.choices:
-                        # 40 = tamaño de la pizza que selecciono el usuario tambien es 40
                         if valor==pizza_form.tamanio.data:
                             tamanio_texto=texto
                             break
@@ -63,19 +61,16 @@ def pizzeria():
                         'num_pizzas':num_pizzas, 'subtotal':subtotal}
                     pedido_pizza.append(pizza)
                     
-                    if not cliente_info:
-                        cliente_info={'nombre':pizza_form.nombre.data, 'direccion':pizza_form.direccion.data,
-                            'telefono':pizza_form.telefono.data}
+                    cliente_info={'nombre':pizza_form.nombre.data, 'direccion':pizza_form.direccion.data,
+                        'telefono':pizza_form.telefono.data}
                     response = make_response(render_template('Pizzeria.html',
                         form=pizza_form, pedido_pizza=pedido_pizza, ventas_acumuladas=ventas_totales_lista, total_ventas_dia=total_ventas_dia)) 
                     
                     #estas son las cookies temporales
                     response.set_cookie('pedido_temporal', json.dumps(pedido_pizza))
                     response.set_cookie('cliente_temporal', json.dumps(cliente_info))
-                    if ventas_totales_lista:
-                        response.set_cookie('cookie_ventas', json.dumps(ventas_totales_lista))
                     return response
-
+                
         elif accion=='Quitar':
             if pedido_pizza:
                 pedido_pizza.pop()
@@ -83,8 +78,6 @@ def pizzeria():
                 pedido_pizza=pedido_pizza, ventas_acumuladas=ventas_totales_lista, 
                 total_ventas_dia=total_ventas_dia))
             response.set_cookie('pedido_temporal', json.dumps(pedido_pizza))
-            if ventas_totales_lista:
-                response.set_cookie('cookie_ventas', json.dumps(ventas_totales_lista))
             return response
 
         elif accion=='Terminar':
@@ -113,12 +106,12 @@ def pizzeria():
             response.delete_cookie('cliente_temporal')
             return response
 
-    total_ventas_dia=0
+    total_ventas_dia = 0
     for v in ventas_totales_lista:
-        total_ventas_dia = total_ventas_dia +v.get('total', 0)
+        total_ventas_dia = total_ventas_dia+v.get('total', 0)
 
-    response= make_response(render_template('Pizzeria.html',
-        form=pizza_form, pedido_pizza=pedido_pizza, ventas_acumuladas=ventas_totales_lista, total_ventas_dia=total_ventas_dia))
+    response = make_response(render_template('Pizzeria.html', form=pizza_form, pedido_pizza=pedido_pizza,
+        ventas_acumuladas=ventas_totales_lista, total_ventas_dia=total_ventas_dia))
     return response
 
 @app.route("/get_pedido_cookie")
